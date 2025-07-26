@@ -23,6 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "pmic_driver.h"
 
 /* USER CODE END Includes */
 
@@ -652,6 +653,19 @@ void StartI2CTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
+    osMutexAcquire(CommMutexHandleHandle, osWaitForever);
+
+    if (PMIC_RequestFaultStatus_DMA() == HAL_OK) {
+        // Wait completion
+        while(!pmic_dma_done) osDelay(1);
+
+        if (pmic_uv_status.bits.BUCKA_UV || pmic_oc_status.bits.BUCKA_OC) {
+          // DTC 저장 요청 함수 호출 등 수행
+        }
+    }
+
+    osMutexRelease(CommMutexHandleHandle);
+
     osDelay(1);
   }
   /* USER CODE END StartI2CTask */

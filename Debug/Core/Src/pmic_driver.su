@@ -1,0 +1,2 @@
+../Core/Src/pmic_driver.c:9:19:PMIC_RequestFaultStatus_DMA	24	static
+../Core/Src/pmic_driver.c:28:6:HAL_I2C_MemRxCpltCallback	24	static
