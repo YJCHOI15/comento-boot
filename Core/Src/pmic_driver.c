@@ -1,3 +1,11 @@
+/*
+* 목적: PMIC UV/OC 레지스터 (0x07, 0x08) 상태 확인을 위한 DMA 기반 I2C read 구현
+* 사용 API: HAL_I2C_Mem_Read_DMA()
+* 주의사항: 2단계 읽기 → 콜백으로 연결, busy 상태 고려 필요
+* 구현 파일: pmic_driver.c/h, main.c (현재는 Task가 main.c에 있음)
+* 다음 단계: 상태 해석 후 SPI EEPROM에 DTC 저장 연동
+*/
+
 #include "pmic_driver.h"
 
 extern I2C_HandleTypeDef hi2c1;
@@ -6,7 +14,7 @@ PMIC_FaultStatus1_t pmic_uv_status;
 PMIC_FaultStatus2_t pmic_oc_status;
 volatile uint8_t pmic_dma_done = 0;
 
-HAL_StatusTypeDef PMIC_RequestFaultStatus_DMA(void) {
+HAL_StatusTypeDef PMIC_ReadFaultStatus_DMA(void) {
     HAL_StatusTypeDef ret;
 
     // Initialize DMA completion flag

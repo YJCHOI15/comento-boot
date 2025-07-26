@@ -24,6 +24,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "pmic_driver.h"
+#include "dtc_manager.h"
+#include "dtc_code.h"
 
 /* USER CODE END Includes */
 
@@ -42,6 +44,8 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+static uint16_t dtc_eeprom_addr = EEPROM_BASE_ADDR;
+
 ADC_HandleTypeDef hadc1;
 
 CAN_HandleTypeDef hcan1;
@@ -646,6 +650,23 @@ void StartDefaultTask(void *argument)
 * @param argument: Not used
 * @retval None
 */
+
+void WriteDTC_IfFault(uint8_t condition, uint16_t code, const char *desc)
+{
+    if (condition)
+    {
+        DTC_Table_t dtc;
+        dtc.DTC_Code = code;
+        strncpy(dtc.Description, desc, sizeof(dtc.Description));
+        dtc.Description[sizeof(dtc.Description) - 1] = '\0';
+        dtc.active = 1;
+
+        DTC_WriteToEEPROM_DMA(dtc_eeprom_addr, &dtc);
+        while (!dtc_write_done) osDelay(1);
+        dtc_eeprom_addr += sizeof(DTC_Table_t);
+    }
+}
+
 /* USER CODE END Header_StartI2CTask */
 void StartI2CTask(void *argument)
 {
@@ -655,13 +676,12 @@ void StartI2CTask(void *argument)
   {
     osMutexAcquire(CommMutexHandleHandle, osWaitForever);
 
-    if (PMIC_RequestFaultStatus_DMA() == HAL_OK) {
-        // Wait completion
+    if (PMIC_ReadFaultStatus_DMA() == HAL_OK) {
+
         while(!pmic_dma_done) osDelay(1);
 
-        if (pmic_uv_status.bits.BUCKA_UV || pmic_oc_status.bits.BUCKA_OC) {
-          // DTC 저장 요청 함수 호출 등 수행
-        }
+        WriteDTC_IfFault(pmic_uv_status.bits.BUCKA_UV, DTC_PMIC_UV_A, "[C600] UV_FAULT_A Detected");
+        WriteDTC_IfFault(pmic_oc_status.bits.BUCKA_OC, DTC_PMIC_OC_A, "[C610] OC_FAULT_A Detected");
     }
 
     osMutexRelease(CommMutexHandleHandle);
