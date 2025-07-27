@@ -44,7 +44,6 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-static uint16_t dtc_eeprom_addr = EEPROM_BASE_ADDR;
 
 ADC_HandleTypeDef hadc1;
 
@@ -112,6 +111,14 @@ const osMutexAttr_t CommMutexHandle_attributes = {
   .name = "CommMutexHandle"
 };
 /* USER CODE BEGIN PV */
+static uint16_t dtc_eeprom_addr = EEPROM_BASE_ADDR;
+
+osThreadId_t CommTaskHandle;
+const osThreadAttr_t CommTask_attributes = {
+  .name = "CommTask",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityNormal,
+};
 
 /* USER CODE END PV */
 
@@ -133,6 +140,8 @@ void StartCANTask(void *argument);
 void StartUARTTask(void *argument);
 
 /* USER CODE BEGIN PFP */
+void WriteDTC_IfFault(uint8_t condition, uint16_t code, const char *desc);
+void StartCommTask(void *argument);
 
 /* USER CODE END PFP */
 
@@ -225,6 +234,8 @@ int main(void)
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
+  CommTaskHandle = osThreadNew(StartCommTask, NULL, &CommTask_attributes);
+
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_EVENTS */
@@ -623,6 +634,39 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void WriteDTC_IfFault(uint8_t condition, uint16_t code, const char *desc) {
+    if (condition)
+    {
+        DTC_Table_t dtc;
+        dtc.DTC_Code = code;
+        strncpy(dtc.Description, desc, sizeof(dtc.Description));
+        dtc.Description[sizeof(dtc.Description) - 1] = '\0';
+        dtc.active = 1;
+
+        DTC_WriteToEEPROM_DMA(dtc_eeprom_addr, &dtc);
+        while (!dtc_write_done) osDelay(1);
+        dtc_eeprom_addr += sizeof(DTC_Table_t);
+    }
+}
+
+void StartCommTask(void *argument) {
+  for(;;)
+  {
+    osMutexAcquire(CommMutexHandleHandle, osWaitForever);
+
+    if (PMIC_ReadFaultStatus_DMA() == HAL_OK) {
+
+        while(!pmic_dma_done) osDelay(1);
+
+        WriteDTC_IfFault(pmic_uv_status.bits.BUCKA_UV, DTC_PMIC_UV_A, "[C600] UV_FAULT_A Detected");
+        WriteDTC_IfFault(pmic_oc_status.bits.BUCKA_OC, DTC_PMIC_OC_A, "[C610] OC_FAULT_A Detected");
+    }
+
+    osMutexRelease(CommMutexHandleHandle);
+
+    osDelay(1);
+  }
+}
 
 /* USER CODE END 4 */
 
@@ -651,22 +695,6 @@ void StartDefaultTask(void *argument)
 * @retval None
 */
 
-void WriteDTC_IfFault(uint8_t condition, uint16_t code, const char *desc)
-{
-    if (condition)
-    {
-        DTC_Table_t dtc;
-        dtc.DTC_Code = code;
-        strncpy(dtc.Description, desc, sizeof(dtc.Description));
-        dtc.Description[sizeof(dtc.Description) - 1] = '\0';
-        dtc.active = 1;
-
-        DTC_WriteToEEPROM_DMA(dtc_eeprom_addr, &dtc);
-        while (!dtc_write_done) osDelay(1);
-        dtc_eeprom_addr += sizeof(DTC_Table_t);
-    }
-}
-
 /* USER CODE END Header_StartI2CTask */
 void StartI2CTask(void *argument)
 {
@@ -674,18 +702,6 @@ void StartI2CTask(void *argument)
   /* Infinite loop */
   for(;;)
   {
-    osMutexAcquire(CommMutexHandleHandle, osWaitForever);
-
-    if (PMIC_ReadFaultStatus_DMA() == HAL_OK) {
-
-        while(!pmic_dma_done) osDelay(1);
-
-        WriteDTC_IfFault(pmic_uv_status.bits.BUCKA_UV, DTC_PMIC_UV_A, "[C600] UV_FAULT_A Detected");
-        WriteDTC_IfFault(pmic_oc_status.bits.BUCKA_OC, DTC_PMIC_OC_A, "[C610] OC_FAULT_A Detected");
-    }
-
-    osMutexRelease(CommMutexHandleHandle);
-
     osDelay(1);
   }
   /* USER CODE END StartI2CTask */
