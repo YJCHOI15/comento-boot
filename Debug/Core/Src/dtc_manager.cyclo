@@ -1,3 +1,0 @@
-../Core/Src/dtc_manager.c:10:6:HAL_SPI_TxCpltCallback	2
-../Core/Src/dtc_manager.c:18:26:EEPROM_WriteEnable	1
-../Core/Src/dtc_manager.c:31:19:DTC_WriteToEEPROM_DMA	2

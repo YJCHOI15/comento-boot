@@ -1,2 +1,0 @@
-../Core/Src/pmic_driver.c:17:19:PMIC_ReadFaultStatus_DMA	1
-../Core/Src/pmic_driver.c:36:6:HAL_I2C_MemRxCpltCallback	2
