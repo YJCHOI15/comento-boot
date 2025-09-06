@@ -3,5 +3,5 @@
 ../Core/Src/eeprom_25lc256.c:18:13:EEPROM_WriteEnable	16	static
 ../Core/Src/eeprom_25lc256.c:30:13:EEPROM_WaitForWriteInProgress	16	static
 ../Core/Src/eeprom_25lc256.c:41:6:EEPROM_Init	8	static
-../Core/Src/eeprom_25lc256.c:50:19:EEPROM_WriteBytes_DMA	48	dynamic
-../Core/Src/eeprom_25lc256.c:76:19:EEPROM_ReadBytes_DMA	24	static
+../Core/Src/eeprom_25lc256.c:50:19:EEPROM_Write_DTC	48	dynamic
+../Core/Src/eeprom_25lc256.c:76:19:EEPROM_Read_DTCs	24	static

@@ -63,7 +63,7 @@ typedef union {
 extern osSemaphoreId_t i2c_dma_semaphore;
 
 void PMIC_Init(void);  
-HAL_StatusTypeDef PMIC_Read_Faults_DMA(uint8_t *pData, uint16_t Size);
+HAL_StatusTypeDef PMIC_Read_Faults(uint8_t *pData, uint16_t Size);
 
 
 #endif

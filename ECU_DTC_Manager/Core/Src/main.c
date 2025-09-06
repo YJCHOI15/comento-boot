@@ -111,9 +111,23 @@ const osMutexAttr_t CommMutexHandle_attributes = {
   .name = "CommMutexHandle"
 };
 /* USER CODE BEGIN PV */
-osMessageQueueId_t DTCEventQueueHandle;
-const osMessageQueueAttr_t DTCEventQueue_attributes = {
-  .name = "DTCEventQueue"
+
+// SPITask로 들어오는 모든 요청을 담는 메시지 큐
+osMessageQueueId_t DTC_RequestQueueHandle;
+const osMessageQueueAttr_t DTC_RequestQueue_attributes = {
+  .name = "DTC_RequestQueue"
+};
+
+// SPITask가 CANTask로 응답을 보내는 메시지 큐
+osMessageQueueId_t DTC_ResponseQueueHandle;
+const osMessageQueueAttr_t DTC_ResponseQueue_attributes = {
+  .name = "DTC_ResponseQueue"
+};
+
+// EEPROM 접근 제어를 위한 뮤텍스
+osMutexId_t EepromMutexHandle;
+const osMutexAttr_t EepromMutex_attributes = {
+  .name = "EepromMutex"
 };
 
 /* USER CODE END PV */
@@ -189,6 +203,9 @@ int main(void)
 
   /* USER CODE BEGIN RTOS_MUTEX */
   /* add mutexes, ... */
+
+  EepromMutexHandle = osMutexNew(&EepromMutex_attributes);
+
   /* USER CODE END RTOS_MUTEX */
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
@@ -205,7 +222,8 @@ int main(void)
 
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
-  DTCEventQueueHandle = osMessageQueueNew(16, sizeof(DTC_Message_t), &DTCEventQueue_attributes);
+  DTC_RequestQueueHandle = osMessageQueueNew(16, sizeof(DTC_RequestMessage_t), &DTC_RequestQueue_attributes);
+  DTC_ResponseQueueHandle = osMessageQueueNew(1, sizeof(DTC_ResponseMessage_t), &DTC_ResponseQueue_attributes);
 
   /* USER CODE END RTOS_QUEUES */
 

@@ -47,7 +47,7 @@ void EEPROM_Init(void) {
     }
 }
 
-HAL_StatusTypeDef EEPROM_WriteBytes_DMA(uint16_t address, uint8_t* pData, uint16_t size) {
+HAL_StatusTypeDef EEPROM_Write_DTC(uint16_t address, uint8_t* pData, uint16_t size) {
     EEPROM_WaitForWriteInProgress();
     EEPROM_WriteEnable();
 
@@ -73,7 +73,7 @@ HAL_StatusTypeDef EEPROM_WriteBytes_DMA(uint16_t address, uint8_t* pData, uint16
     return HAL_OK;
 }
 
-HAL_StatusTypeDef EEPROM_ReadBytes_DMA(uint16_t address, uint8_t* pData, uint16_t size) {
+HAL_StatusTypeDef EEPROM_Read_DTCs(uint16_t address, uint8_t* pData, uint16_t size) {
     EEPROM_WaitForWriteInProgress();
 
     uint8_t tx_buffer[3]; // 명령어(1) + 주소(2)

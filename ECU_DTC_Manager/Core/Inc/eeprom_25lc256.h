@@ -17,8 +17,8 @@
 extern osSemaphoreId_t spi_dma_semaphore;
 
 void EEPROM_Init(void);
-HAL_StatusTypeDef EEPROM_WriteBytes_DMA(uint16_t address, uint8_t* pData, uint16_t size);
-HAL_StatusTypeDef EEPROM_ReadBytes_DMA(uint16_t address, uint8_t* pData, uint16_t size);
+HAL_StatusTypeDef EEPROM_Write_DTC(uint16_t address, uint8_t* pData, uint16_t size);
+HAL_StatusTypeDef EEPROM_Read_DTCs(uint16_t address, uint8_t* pData, uint16_t size);
 
 
 #endif /* BSP_EEPROM_25LC256_H_ */

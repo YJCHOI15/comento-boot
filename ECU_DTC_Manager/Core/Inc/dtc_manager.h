@@ -20,9 +20,9 @@ typedef enum {
     DTC_C0577_BUCK_D_UV = 0x0577, // C0577: Left Front Solenoid Circuit Low
     DTC_C0121_BUCK_D_OC = 0x0121, // C0121: Valve Relay Circuit Malfunction
 
-    /* ADC 감지: ECU 메인 전원 (ECU Main Power Supply) 관련 Faults */
-    DTC_C1236_ADC_VOLTAGE_LOW  = 0x1236, // C1236: Low System Supply Voltage
-    DTC_C1237_ADC_VOLTAGE_HIGH = 0x1237, // C1237: High System Supply Voltage
+    /* ECU 메인 전원 (ECU Main Power Supply) 관련 Faults */
+    DTC_C1236_VOLTAGE_LOW  = 0x1236, // C1236: Low System Supply Voltage
+    DTC_C1237_VOLTAGE_HIGH = 0x1237, // C1237: High System Supply Voltage
 
     /* 시스템 및 통신 (System & Network) 관련 Faults (U-Codes) */
     DTC_U0121_SYSTEM_FAIL = 0x0121, // U0121: Lost Communication With ABS Module (PMIC 과열 등 심각한 오류)
