@@ -92,7 +92,7 @@ void StartSPITask(void *argument)
 
   for(;;)
   {
-    // DTCEventQueueHandle에 메시지가 도착할 때까지 무한정 대기 (휴면 상태)
+    // DTCEventQueueHandle에 메시지가 도착할 때까지 Blocked
     status = osMessageQueueGet(DTCEventQueueHandle, &received_msg, NULL, osWaitForever);
 
     if (status == osOK)

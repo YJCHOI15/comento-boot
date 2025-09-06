@@ -21,8 +21,9 @@
 #include "main.h"
 #include "cmsis_os.h"
 
-#include "pmic_mp5475gu.h"
 #include "tasks.h"
+#include "pmic_mp5475gu.h"
+#include "eeprom_25lc256.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -176,6 +177,7 @@ int main(void)
   MX_UART4_Init();
   /* USER CODE BEGIN 2 */
   PMIC_Init();
+  EEPROM_Init();
 
   /* USER CODE END 2 */
 

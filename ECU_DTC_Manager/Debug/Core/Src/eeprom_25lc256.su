@@ -1,0 +1,7 @@
+../Core/Src/eeprom_25lc256.c:7:13:EEPROM_CS_LOW	8	static
+../Core/Src/eeprom_25lc256.c:11:13:EEPROM_CS_HIGH	8	static
+../Core/Src/eeprom_25lc256.c:18:13:EEPROM_WriteEnable	16	static
+../Core/Src/eeprom_25lc256.c:30:13:EEPROM_WaitForWriteInProgress	16	static
+../Core/Src/eeprom_25lc256.c:41:6:EEPROM_Init	8	static
+../Core/Src/eeprom_25lc256.c:50:19:EEPROM_WriteBytes_DMA	48	dynamic
+../Core/Src/eeprom_25lc256.c:76:19:EEPROM_ReadBytes_DMA	24	static

@@ -7,6 +7,7 @@
 #include "cmsis_os.h"
 #include "pmic_mp5475gu.h"
 #include "dtc_manager.h"
+#include "eeprom_25lc256.h"
 
 typedef struct {
     DTC_Code_t dtc_code; // 발생한 DTC의 코드 번호
