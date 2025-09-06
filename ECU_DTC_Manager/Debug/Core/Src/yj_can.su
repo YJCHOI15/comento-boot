@@ -1,0 +1,2 @@
+../Core/Src/yj_can.c:5:19:CAN_Init	8	static
+../Core/Src/yj_can.c:19:19:CAN_SendMessage	56	static

@@ -1,5 +1,12 @@
 #include "tasks.h"
 
+// EEPROM에 DTC를 저장할 시작 주소 및 최대 개수 정의
+#define DTC_STORAGE_START_ADDRESS 0x0100   // 사용자 정의 (실제 저장공간 0x0000 ~ 0x7FFF)
+#define MAX_DTC_COUNT             16
+#define DTC_ENTRY_SIZE            sizeof(DTC_Code_t) // DTC 하나는 2바이트
+
+static void Process_CAN_Response(CAN_Message_t* rx_msg);
+
 /**
  * I2CTask는 1ms 주기로 PMIC의 Fault 상태를 확인하여,
  * 새롭게 발생한 Fault가 있으면 SPITask로 DTC 이벤트 큐를 전송한다.
@@ -85,11 +92,6 @@ void StartI2CTask(void *argument) {
   }
 }
 
-// EEPROM에 DTC를 저장할 시작 주소 및 최대 개수 정의
-#define DTC_STORAGE_START_ADDRESS 0x0100   // 사용자 정의 (실제 저장공간 0x0000 ~ 0x7FFF)
-#define MAX_DTC_COUNT             16
-#define DTC_ENTRY_SIZE            sizeof(DTC_Code_t) // DTC 하나는 2바이트
-
 /*
  * SPITask는 DTC 관련 요청을 받아 EEPROM에 읽고 쓰는 역할을 전담한다.
  */
@@ -163,19 +165,96 @@ void StartSPITask(void *argument) {
   }
 }
 
+/* 
+ * CAN 메시지 수신을 기다리다가, 진단 요청이 오면 처리한다. 
+ */
 void StartCANTask(void *argument)
 {
+  CAN_Message_t rx_msg;
+  osStatus_t status;
+
+  // CAN 드라이버 초기화 및 인터럽트 활성화
+  CAN_Init();
+
   for(;;)
   {
-    osDelay(1000);
+    // CanQueueHandle에 메시지가 도착할 때까지 Blocked
+    status = osMessageQueueGet(CanQueueHandle, &rx_msg, NULL, osWaitForever);
+    if (status == osOK) {
+      // 수신된 메시지 ID가 진단 요청 ID(0x7DF)일 경우에만 처리
+      if (rx_msg.header.StdId == CAN_ID_DIAG_REQUEST) {
+        Process_CAN_Response(&rx_msg);
+      }
+    }
   }
 }
 
-void StartUARTTask(void *argument)
+/**
+ * 수신된 UDS 진단 요청 메시지를 파싱하고 처리한다.
+ * rx_msg: 수신된 CAN 메시지 데이터
+ */
+static void Process_CAN_Response(CAN_Message_t* rx_msg)
 {
-  for(;;)
-  {
-    osDelay(1000);
+  uint8_t sid = rx_msg->data[1]; // Service ID
+
+  switch (sid) {
+
+    case SID_READ_DTC_INFO: // 0x19 - DTC 정보 읽기 요청
+    {
+      // 1. SPITask에게 "모든 DTC를 읽어달라"고 요청
+      DTC_RequestMessage_t request_to_spi;
+      request_to_spi.type = READ_ALL_DTCS_REQUEST;
+      osMessageQueuePut(DTC_RequestQueueHandle, &request_to_spi, 0, 10);
+
+      // 2. SPITask로부터 응답이 올 때까지 잠시 Blocked
+      DTC_ResponseMessage_t response_from_spi;
+      if (osMessageQueueGet(DTC_ResponseQueueHandle, &response_from_spi, NULL, 100) == osOK) {
+        // 3. UDS 프로토콜에 맞춰 응답 메시지 포맷팅
+        uint8_t tx_data[8] = {0};
+        uint8_t valid_dtc_count = 0;
+
+        // 유효한 DTC만 필터링하여 응답 데이터 구성
+        for (int i = 0; i < MAX_DTC_COUNT && valid_dtc_count < 2; i++) {
+            if (response_from_spi.dtc_list[i] != 0x0000 && response_from_spi.dtc_list[i] != 0xFFFF) {
+                if (valid_dtc_count == 0) { // 첫 번째 DTC
+                    tx_data[3] = (response_from_spi.dtc_list[i] >> 8) & 0xFF; // DTC High Byte
+                    tx_data[4] = response_from_spi.dtc_list[i] & 0xFF;        // DTC Low Byte
+                    tx_data[5] = 0x09; // DTC Status (exmple)
+                } else { // 두 번째 DTC
+                    tx_data[6] = (response_from_spi.dtc_list[i] >> 8) & 0xFF;
+                    tx_data[7] = response_from_spi.dtc_list[i] & 0xFF;
+                }
+                valid_dtc_count++;
+            }
+        }
+
+        // PCI 및 SID, Sub-function 설정
+        tx_data[0] = 1 + (valid_dtc_count * 3); // PCI: SID + SubFunc + DTCs
+        tx_data[1] = SID_READ_DTC_INFO | SID_POSITIVE_RESPONSE_MASK; // 0x59
+        tx_data[2] = SUB_FUNC_DTC_BY_STATUS_MASK; // 0x02
+
+        // 4. 진단기로 최종 응답 전송
+        CAN_SendMessage(CAN_ID_DIAG_RESPONSE, tx_data, tx_data[0] + 1);
+      }
+      break;
+    }
+
+    case SID_CLEAR_DIAG_INFO: // 0x14 - DTC 삭제 요청
+    {
+      // 1. SPITask에게 "모든 DTC를 삭제해달라"고 요청
+      DTC_RequestMessage_t request_to_spi;
+      request_to_spi.type = CLEAR_ALL_DTCS_REQUEST;
+      osMessageQueuePut(DTC_RequestQueueHandle, &request_to_spi, 0, 10);
+
+      // 2. UDS 프로토콜에 맞춰 긍정 응답 메시지 포맷팅
+      uint8_t tx_data[2];
+      tx_data[0] = 0x01; // PCI
+      tx_data[1] = SID_CLEAR_DIAG_INFO | SID_POSITIVE_RESPONSE_MASK; // 0x54
+
+      // 3. 진단기로 최종 응답 전송
+      CAN_SendMessage(CAN_ID_DIAG_RESPONSE, tx_data, 2);
+      break;
+    }
   }
 }
 
@@ -185,6 +264,14 @@ void StartADCTask(void *argument)
     {
         osDelay(1000);
     }
+}
+
+void StartUARTTask(void *argument)
+{
+  for(;;)
+  {
+    osDelay(1000);
+  }
 }
 
 void StartDefaultTask(void *argument)

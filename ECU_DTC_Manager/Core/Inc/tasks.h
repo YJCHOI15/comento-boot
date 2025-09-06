@@ -8,6 +8,8 @@
 #include "pmic_mp5475gu.h"
 #include "dtc_manager.h"
 #include "eeprom_25lc256.h"
+#include "yj_can.h"
+#include "can_uds_protocol.h"
 
 typedef enum {
     SAVE_DTC_REQUEST,       // 새로운 DTC 저장 요청 (I2CTask, ADCTask -> SPITask)
@@ -31,6 +33,8 @@ typedef struct {
 extern osMessageQueueId_t DTC_RequestQueueHandle;  // SPITask로 들어오는 모든 요청 큐
 extern osMessageQueueId_t DTC_ResponseQueueHandle; // SPITask가 CANTask로 보내는 응답 큐
 extern osMutexId_t EepromMutexHandle;          // EEPROM 접근 제어를 위한 뮤텍스
+
+extern osMessageQueueId_t CanQueueHandle;
 
 void StartDefaultTask(void *argument);
 void StartI2CTask(void *argument);

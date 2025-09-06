@@ -1,6 +1,7 @@
-../Core/Src/tasks.c:7:6:StartI2CTask	21
-../Core/Src/tasks.c:96:6:StartSPITask	17
-../Core/Src/tasks.c:166:6:StartCANTask	1
-../Core/Src/tasks.c:174:6:StartUARTTask	1
-../Core/Src/tasks.c:182:6:StartADCTask	1
-../Core/Src/tasks.c:190:6:StartDefaultTask	1
+../Core/Src/tasks.c:14:6:StartI2CTask	21
+../Core/Src/tasks.c:98:6:StartSPITask	17
+../Core/Src/tasks.c:171:6:StartCANTask	3
+../Core/Src/tasks.c:198:13:Process_CAN_Response	9
+../Core/Src/tasks.c:266:6:StartADCTask	1
+../Core/Src/tasks.c:274:6:StartUARTTask	1
+../Core/Src/tasks.c:282:6:StartDefaultTask	1

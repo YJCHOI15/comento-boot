@@ -24,6 +24,7 @@
 #include "tasks.h"
 #include "pmic_mp5475gu.h"
 #include "eeprom_25lc256.h"
+#include "yj_can.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -218,10 +219,10 @@ int main(void)
 
   /* Create the queue(s) */
   /* creation of CanQueue */
-  CanQueueHandle = osMessageQueueNew (8, 8, &CanQueue_attributes);
-
+  
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
+  CanQueueHandle = osMessageQueueNew (8, sizeof(CAN_Message_t), &CanQueue_attributes);
   DTC_RequestQueueHandle = osMessageQueueNew(16, sizeof(DTC_RequestMessage_t), &DTC_RequestQueue_attributes);
   DTC_ResponseQueueHandle = osMessageQueueNew(1, sizeof(DTC_ResponseMessage_t), &DTC_ResponseQueue_attributes);
 

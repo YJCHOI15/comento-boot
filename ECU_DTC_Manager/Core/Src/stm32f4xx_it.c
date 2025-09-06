@@ -27,6 +27,7 @@
 #include "cmsis_os.h"
 #include "pmic_mp5475gu.h"
 #include "eeprom_25lc256.h"
+#include "yj_can.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -447,6 +448,20 @@ void HAL_SPI_TxRxCpltCallback(SPI_HandleTypeDef *hspi) {
   if (hspi->Instance == SPI1) {
     osSemaphoreRelease(spi_dma_semaphore);
   }
+}
+
+/* CAN 수신 FIFO 0에 메시지가 도착했을 때 호출되는 콜백 함수 */
+extern osMessageQueueId_t CanQueueHandle;
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
+{
+    CAN_Message_t rx_msg;
+
+    // 1. 수신된 CAN 메시지를 하드웨어 버퍼에서 읽어온다. 
+    if (HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &rx_msg.header, rx_msg.data) == HAL_OK) {
+        // 2. 읽어온 메시지를 CanQueueHandle 메시지 큐로 전송한다.
+        //    ISR에서는 타임아웃을 0으로 설정하여 절대 대기하지 않는다.
+        osMessageQueuePut(CanQueueHandle, &rx_msg, 0, 0);
+    }
 }
 
 /* USER CODE END 1 */
