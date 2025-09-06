@@ -110,6 +110,10 @@ const osMutexAttr_t CommMutexHandle_attributes = {
   .name = "CommMutexHandle"
 };
 /* USER CODE BEGIN PV */
+osMessageQueueId_t DTCEventQueueHandle;
+const osMessageQueueAttr_t DTCEventQueue_attributes = {
+  .name = "DTCEventQueue"
+};
 
 /* USER CODE END PV */
 
@@ -199,6 +203,8 @@ int main(void)
 
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
+  DTCEventQueueHandle = osMessageQueueNew(16, sizeof(DTC_Message_t), &DTCEventQueue_attributes);
+
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
