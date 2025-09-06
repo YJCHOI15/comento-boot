@@ -1,0 +1,6 @@
+../Core/Src/tasks.c:6:6:StartI2CTask	24	static
+../Core/Src/tasks.c:27:6:StartSPITask	16	static
+../Core/Src/tasks.c:35:6:StartCANTask	16	static
+../Core/Src/tasks.c:43:6:StartUARTTask	16	static
+../Core/Src/tasks.c:51:6:StartADCTask	16	static
+../Core/Src/tasks.c:59:6:StartDefaultTask	16	static

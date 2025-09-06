@@ -21,6 +21,9 @@
 #include "main.h"
 #include "cmsis_os.h"
 
+#include "pmic_mp5475gu.h"
+#include "tasks.h"
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -121,11 +124,6 @@ static void MX_I2C2_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_SPI2_Init(void);
 static void MX_UART4_Init(void);
-void StartDefaultTask(void *argument);
-void StartI2CTask(void *argument);
-void StartSPITask(void *argument);
-void StartCANTask(void *argument);
-void StartUARTTask(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -173,6 +171,7 @@ int main(void)
   MX_SPI2_Init();
   MX_UART4_Init();
   /* USER CODE BEGIN 2 */
+  PMIC_Init();
 
   /* USER CODE END 2 */
 
@@ -620,96 +619,6 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
-
-/* USER CODE BEGIN Header_StartDefaultTask */
-/**
-  * @brief  Function implementing the defaultTask thread.
-  * @param  argument: Not used
-  * @retval None
-  */
-/* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void *argument)
-{
-  /* USER CODE BEGIN 5 */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
-  /* USER CODE END 5 */
-}
-
-/* USER CODE BEGIN Header_StartI2CTask */
-/**
-* @brief Function implementing the I2CTask thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_StartI2CTask */
-void StartI2CTask(void *argument)
-{
-  /* USER CODE BEGIN StartI2CTask */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
-  /* USER CODE END StartI2CTask */
-}
-
-/* USER CODE BEGIN Header_StartSPITask */
-/**
-* @brief Function implementing the SPITask thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_StartSPITask */
-void StartSPITask(void *argument)
-{
-  /* USER CODE BEGIN StartSPITask */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
-  /* USER CODE END StartSPITask */
-}
-
-/* USER CODE BEGIN Header_StartCANTask */
-/**
-* @brief Function implementing the CANTask thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_StartCANTask */
-void StartCANTask(void *argument)
-{
-  /* USER CODE BEGIN StartCANTask */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
-  /* USER CODE END StartCANTask */
-}
-
-/* USER CODE BEGIN Header_StartUARTTask */
-/**
-* @brief Function implementing the UARTTask thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_StartUARTTask */
-void StartUARTTask(void *argument)
-{
-  /* USER CODE BEGIN StartUARTTask */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-  }
-  /* USER CODE END StartUARTTask */
-}
 
 /**
   * @brief  This function is executed in case of error occurrence.

@@ -2,8 +2,10 @@
 #define PMIC_MP5475GU_H
 
 #include <stdint.h>
+#include "main.h"
+#include "cmsis_os.h"
 
-#define MP5475_I2C_SLAVE_ADDR   0x60
+#define MP5475_I2C_SLAVE_ADDR   (0x60 << 1) // HAL 함수는 8bit 주소를 사용하므로 Left Shift
 
 typedef enum {
     FSM_STATE_REG                   = 0x05, // FSM 상태 및 Power Good 상태
@@ -57,5 +59,11 @@ typedef union {
         uint8_t reserved                : 1;
     } bits;
 } MP5475_Reg09_Status;
+
+extern osSemaphoreId_t i2c_dma_semaphore;
+
+void PMIC_Init(void);  
+HAL_StatusTypeDef PMIC_Read_Faults_DMA(uint8_t *pData, uint16_t Size);
+
 
 #endif

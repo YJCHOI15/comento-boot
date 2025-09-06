@@ -1,0 +1,2 @@
+../Core/Src/pmic_mp5475gu.c:11:6:PMIC_Init	8	static
+../Core/Src/pmic_mp5475gu.c:23:19:PMIC_Read_Faults_DMA	24	static
