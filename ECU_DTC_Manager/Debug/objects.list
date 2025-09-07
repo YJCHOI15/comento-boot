@@ -10,6 +10,7 @@
 "./Core/Src/tasks.o"
 "./Core/Src/yj_adc.o"
 "./Core/Src/yj_can.o"
+"./Core/Src/yj_uart.o"
 "./Core/Startup/startup_stm32f413zhtx.o"
 "./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.o"
 "./Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc.o"

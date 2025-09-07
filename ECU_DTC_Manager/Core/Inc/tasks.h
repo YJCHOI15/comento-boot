@@ -11,6 +11,7 @@
 #include "yj_can.h"
 #include "can_uds_protocol.h"
 #include "yj_adc.h"
+#include "yj_uart.h"
 
 typedef enum {
     SAVE_DTC_REQUEST,       // 새로운 DTC 저장 요청 (I2CTask, ADCTask -> SPITask)

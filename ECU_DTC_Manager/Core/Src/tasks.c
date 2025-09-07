@@ -11,6 +11,11 @@ static void Process_CAN_Response(CAN_Message_t* rx_msg);
 #define VOLTAGE_THRESHOLD_LOW   1.44f // BUCKD 저전압 임계값 (V)
 #define VOLTAGE_THRESHOLD_HIGH  2.16f // BUCKD 과전압 임계값 (V)
 
+// ADCTask와 UARTTask가 공유하는 최신 전압 값
+static float g_latest_adc_voltage = 0.0f;
+static bool g_is_voltage_low = false;
+static bool g_is_voltage_high = false;
+
 /**********************************************************************/
 
 /**
@@ -273,15 +278,12 @@ void StartADCTask(void *argument) {
 
     float measured_voltage;
 
-    // 이전 전압 이상 상태를 저장하기 위한 static 변수
-    static bool is_voltage_low = false;
-    static bool is_voltage_high = false;
-
     for(;;) {
         // 5ms 주기를 만들기 위해 5ms 대기
         osDelay(5);
 
         measured_voltage = ADC_GetVoltage();
+        g_latest_adc_voltage = measured_voltage;
 
         DTC_RequestMessage_t msg;
         msg.type = SAVE_DTC_REQUEST;
@@ -289,36 +291,46 @@ void StartADCTask(void *argument) {
         /* 저전압 상태 확인 */
         if (measured_voltage < VOLTAGE_THRESHOLD_LOW) {
             // 이전에 저전압 상태가 아니었을 때만 DTC를 한 번 전송
-            if (!is_voltage_low) {
-                is_voltage_low = true; // 저전압 상태로 설정
+            if (!g_is_voltage_low) {
+                g_is_voltage_low = true; // 저전압 상태로 설정
                 msg.dtc_code = DTC_C1236_VOLTAGE_LOW;
                 osMessageQueuePut(DTC_RequestQueueHandle, &msg, 0, 0);
             }
         } else {
             // 전압이 정상으로 돌아오면 상태 플래그 리셋
-            is_voltage_low = false;
+            g_is_voltage_low = false;
         }
 
         /* 과전압 상태 확인 */
         if (measured_voltage > VOLTAGE_THRESHOLD_HIGH) {
             // 이전에 과전압 상태가 아니었을 때만 DTC를 한 번 전송
-            if (!is_voltage_high) {
-                is_voltage_high = true; // 과전압 상태로 설정
+            if (!g_is_voltage_high) {
+                g_is_voltage_high = true; // 과전압 상태로 설정
                 msg.dtc_code = DTC_C1237_VOLTAGE_HIGH;
                 osMessageQueuePut(DTC_RequestQueueHandle, &msg, 0, 0);
             }
         } else {
             // 전압이 정상으로 돌아오면 상태 플래그 리셋
-            is_voltage_high = false;
+            g_is_voltage_high = false;
         }
     }
 }
 
-void StartUARTTask(void *argument)
-{
+/**
+ * UARTTask는 5ms 주기로 시스템 상태를 UART로 출력한다.
+ */
+void StartUARTTask(void *argument) {
   for(;;)
   {
-    osDelay(1000);
+    osDelay(5);
+    
+    if (g_is_voltage_low) {
+        UART_Printf("[BUCK_D] Low System Supply Voltage: %.2fV\r\n", g_latest_adc_voltage);
+    } else if (g_is_voltage_high) {
+        UART_Printf("[BUCK_D] High System Supply Voltage: %.2fV\r\n", g_latest_adc_voltage);
+    } else {
+        UART_Printf("System Status: OK, PMIC BUCK_D Voltage: %.2fV\r\n", g_latest_adc_voltage);
+    }
   }
 }
 
