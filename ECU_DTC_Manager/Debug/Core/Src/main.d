@@ -45,7 +45,7 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.h \
  ../Core/Inc/tasks.h ../Core/Inc/main.h ../Core/Inc/pmic_mp5475gu.h \
  ../Core/Inc/dtc_manager.h ../Core/Inc/eeprom_25lc256.h \
- ../Core/Inc/yj_can.h ../Core/Inc/can_uds_protocol.h \
+ ../Core/Inc/yj_can.h ../Core/Inc/can_uds_protocol.h ../Core/Inc/yj_adc.h \
  ../Core/Inc/pmic_mp5475gu.h ../Core/Inc/eeprom_25lc256.h \
  ../Core/Inc/yj_can.h
 ../Core/Inc/main.h:
@@ -100,6 +100,7 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 ../Core/Inc/eeprom_25lc256.h:
 ../Core/Inc/yj_can.h:
 ../Core/Inc/can_uds_protocol.h:
+../Core/Inc/yj_adc.h:
 ../Core/Inc/pmic_mp5475gu.h:
 ../Core/Inc/eeprom_25lc256.h:
 ../Core/Inc/yj_can.h:

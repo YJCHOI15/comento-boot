@@ -94,6 +94,13 @@ const osThreadAttr_t CANTask_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
+/* Definitions for ADCTask */
+osThreadId_t ADCTaskHandle;
+const osThreadAttr_t ADCTask_attributes = {
+  .name = "ADCTask",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityNormal,
+};
 /* Definitions for UARTTask */
 osThreadId_t UARTTaskHandle;
 const osThreadAttr_t UARTTask_attributes = {
@@ -240,6 +247,9 @@ int main(void)
 
   /* creation of CANTask */
   CANTaskHandle = osThreadNew(StartCANTask, NULL, &CANTask_attributes);
+
+  /* creation of ADCTask */
+  ADCTaskHandle = osThreadNew(StartADCTask, NULL, &ADCTask_attributes);
 
   /* creation of UARTTask */
   UARTTaskHandle = osThreadNew(StartUARTTask, NULL, &UARTTask_attributes);

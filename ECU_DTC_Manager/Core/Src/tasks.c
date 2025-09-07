@@ -7,6 +7,12 @@
 
 static void Process_CAN_Response(CAN_Message_t* rx_msg);
 
+// ADCTask에서 사용할 전압 임계값 정의
+#define VOLTAGE_THRESHOLD_LOW   1.44f // BUCKD 저전압 임계값 (V)
+#define VOLTAGE_THRESHOLD_HIGH  2.16f // BUCKD 과전압 임계값 (V)
+
+/**********************************************************************/
+
 /**
  * I2CTask는 1ms 주기로 PMIC의 Fault 상태를 확인하여,
  * 새롭게 발생한 Fault가 있으면 SPITask로 DTC 이벤트 큐를 전송한다.
@@ -258,11 +264,53 @@ static void Process_CAN_Response(CAN_Message_t* rx_msg)
   }
 }
 
-void StartADCTask(void *argument)
-{
-    for(;;)
-    {
-        osDelay(1000);
+
+/**
+ * ADCTask는 5ms 주기로 PMIC BUCK D 채널의 전압을 모니터링하고,
+ * 임계값을 벗어나면 SPITask로 DTC 저장 요청을 보낸다.
+ */
+void StartADCTask(void *argument) {
+
+    float measured_voltage;
+
+    // 이전 전압 이상 상태를 저장하기 위한 static 변수
+    static bool is_voltage_low = false;
+    static bool is_voltage_high = false;
+
+    for(;;) {
+        // 5ms 주기를 만들기 위해 5ms 대기
+        osDelay(5);
+
+        measured_voltage = ADC_GetVoltage();
+
+        DTC_RequestMessage_t msg;
+        msg.type = SAVE_DTC_REQUEST;
+
+        /* 저전압 상태 확인 */
+        if (measured_voltage < VOLTAGE_THRESHOLD_LOW) {
+            // 이전에 저전압 상태가 아니었을 때만 DTC를 한 번 전송
+            if (!is_voltage_low) {
+                is_voltage_low = true; // 저전압 상태로 설정
+                msg.dtc_code = DTC_C1236_VOLTAGE_LOW;
+                osMessageQueuePut(DTC_RequestQueueHandle, &msg, 0, 0);
+            }
+        } else {
+            // 전압이 정상으로 돌아오면 상태 플래그 리셋
+            is_voltage_low = false;
+        }
+
+        /* 과전압 상태 확인 */
+        if (measured_voltage > VOLTAGE_THRESHOLD_HIGH) {
+            // 이전에 과전압 상태가 아니었을 때만 DTC를 한 번 전송
+            if (!is_voltage_high) {
+                is_voltage_high = true; // 과전압 상태로 설정
+                msg.dtc_code = DTC_C1237_VOLTAGE_HIGH;
+                osMessageQueuePut(DTC_RequestQueueHandle, &msg, 0, 0);
+            }
+        } else {
+            // 전압이 정상으로 돌아오면 상태 플래그 리셋
+            is_voltage_high = false;
+        }
     }
 }
 

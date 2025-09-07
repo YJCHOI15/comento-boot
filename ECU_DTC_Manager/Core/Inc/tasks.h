@@ -10,6 +10,7 @@
 #include "eeprom_25lc256.h"
 #include "yj_can.h"
 #include "can_uds_protocol.h"
+#include "yj_adc.h"
 
 typedef enum {
     SAVE_DTC_REQUEST,       // 새로운 DTC 저장 요청 (I2CTask, ADCTask -> SPITask)
@@ -40,8 +41,8 @@ void StartDefaultTask(void *argument);
 void StartI2CTask(void *argument);
 void StartSPITask(void *argument);
 void StartCANTask(void *argument);
-void StartUARTTask(void *argument);
 void StartADCTask(void *argument); 
+void StartUARTTask(void *argument);
 
 
 #endif /* TASKS_H_ */
