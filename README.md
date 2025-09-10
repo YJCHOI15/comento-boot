@@ -62,7 +62,8 @@ MCU를 중심으로 각 주변 장치가 다음과 같이 연결됩니다.
 
 본 프로젝트는 요구사항의 누락 및 오해석을 방지하고 시스템의 신뢰성을 확보하기 위해 V-Model 개발 프로세스를 기반으로 진행되었습니다. 각 단계별 산출물은 [/docs](https://github.com/YJCHOI15/ecu-dtc-manager/tree/main/docs) 폴더에서 확인할 수 있습니다.
 
-<img width="1338" height="581" alt="image" src="https://github.com/user-attachments/assets/6000bedd-4fe0-4009-82c9-81b5e2b2c648" />
+<img width="1133" height="522" alt="image" src="https://github.com/user-attachments/assets/f439a6de-fd30-418e-8508-27e2615504c1" />
+
 
 ### 요구사항 분석 및 시스템 설계 (V-Model 좌측):
 
@@ -76,7 +77,8 @@ MCU를 중심으로 각 주변 장치가 다음과 같이 연결됩니다.
 
 **2주차**: 시스템 아키텍처(H/W, S/W)를 확정하고, RTOS 태스크와 드라이버를 상세 설계한 후 C언어로 핵심 로직을 구현했습니다. (2주차 보고서.pdf 참조)
 
-<img width="1686" height="786" alt="image" src="https://github.com/user-attachments/assets/0cc63b47-1e1f-4c53-8b7e-d5953e804530" />
+<img width="2166" height="1011" alt="image" src="https://github.com/user-attachments/assets/06986fcd-334d-480d-8ec1-010700176897" />
+
 
 ### 단위/통합/시스템 테스트 (V-Model 우측):
 
