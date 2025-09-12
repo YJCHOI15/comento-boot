@@ -60,7 +60,7 @@ MCU를 중심으로 각 주변 장치가 다음과 같이 연결됩니다.
 
 ## Development Process
 
-본 프로젝트는 요구사항의 누락 및 오해석을 방지하고 시스템의 신뢰성을 확보하기 위해 V-Model 개발 프로세스를 기반으로 진행되었습니다. 각 단계별 산출물은 [/docs](https://github.com/YJCHOI15/ecu-dtc-manager/tree/main/docs) 폴더에서 확인할 수 있습니다.
+본 프로젝트는 요구사항의 누락 및 오해석을 방지하고 시스템의 신뢰성을 확보하기 위해 V-Model 개발 프로세스를 기반으로 진행되었습니다. 각 단계별 산출물은 [docs](https://github.com/YJCHOI15/ecu-dtc-manager/tree/main/docs)에서 확인할 수 있습니다.
 
 <img width="1133" height="522" alt="image" src="https://github.com/user-attachments/assets/f439a6de-fd30-418e-8508-27e2615504c1" />
 
